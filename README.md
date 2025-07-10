@@ -1,6 +1,6 @@
-# RSS Monitor 📡
+# RSS/RDF Monitor 📡
 
-**シンプルで洗練されたRSS更新監視WEBアプリ**
+**シンプルで洗練されたRSS/RDF更新監視WEBアプリ**
 
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)](https://streamlit.io/)
@@ -9,12 +9,20 @@
 ## ✨ 特徴
 
 - **🎯 シンプルなUI**: パッと見ただけで使い方が分かる洗練されたインターフェース
-- **⚙️ 柔軟な設定**: RSS URLの追加・変更・削除が簡単
+- **📰 多様なフィード対応**: RSS 1.0/2.0、RDF、Atomフィードに対応
+- **⚙️ 柔軟な設定**: フィードURLの追加・変更・削除が簡単
 - **🔄 自動更新**: 1時間～1日間隔での自動更新監視
 - **👤 クライアント別設定**: ブラウザごとに設定が自動保持
 - **🚀 認証不要**: すぐに使い始められる
 - **📊 豊富な機能**: フィルタリング、通知、分析機能付き
 - **🐳 Docker対応**: コンテナで簡単デプロイ
+
+## 📰 対応フィード形式
+
+- **RSS 1.0** (RDF形式)
+- **RSS 2.0** 
+- **Atom**
+- **Dublin Core メタデータ対応**
 
 ## 🎬 デモ
 
@@ -79,8 +87,8 @@ docker-compose up -d
    streamlit run app.py
    ```
 
-2. **RSS追加**
-   - サイドバーの「RSS追加」フォームにURLを入力
+2. **フィード追加**
+   - サイドバーの「RSS/RDF追加」フォームにURLを入力
    - 表示名（任意）を設定して「追加」をクリック
 
 3. **更新頻度設定**
@@ -157,7 +165,7 @@ rss-monitor/
 
 ```ini
 [app]
-app_title = RSS Monitor
+app_title = RSS/RDF Monitor
 max_items_per_feed = 20
 cache_timeout_minutes = 30
 
@@ -180,7 +188,7 @@ LOG_LEVEL=INFO
 # データディレクトリパス
 DATA_DIR=/app/data
 
-# RSSタイムアウト設定
+# フィードタイムアウト設定
 RSS_TIMEOUT=10
 ```
 
@@ -249,7 +257,7 @@ sudo docker-compose up -d
 
 - **軽量**: 最小512MBメモリで動作
 - **高速**: インメモリキャッシュで高速表示
-- **スケーラブル**: 数百のRSSフィードに対応
+- **スケーラブル**: 数百のフィードに対応
 - **安定**: 自動エラー回復とログ記録
 
 ## 🔧 開発
@@ -282,19 +290,19 @@ pytest tests/
 
 ## 📊 使用例
 
-### 人気RSSフィード例
+### 人気フィード例
 
 ```python
-# ニュースサイト
+# RSS 2.0
 "https://www.nhk.or.jp/rss/news/cat0.xml"
 "https://news.yahoo.co.jp/rss/topics/top-picks.xml"
 
-# 技術ブログ
-"https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml"
-"https://zenn.dev/topics/tech/feed"
+# RSS 1.0 (RDF)
+"https://rss.itmedia.co.jp/rss/1.0/news_bursts.xml"
 
-# GitHub
+# Atom
 "https://github.com/trending.atom"
+"https://zenn.dev/topics/tech/feed"
 ```
 
 ### API使用例
@@ -307,7 +315,7 @@ from src.repositories.local_data_repository import LocalDataRepository
 repository = LocalDataRepository()
 rss_service = RSSService(repository)
 
-# RSSフィード取得
+# RSS/RDFフィード取得
 feed = rss_service.fetch_feed("https://example.com/rss")
 print(f"タイトル: {feed.title}")
 print(f"記事数: {len(feed.items)}")
@@ -332,7 +340,7 @@ print(f"記事数: {len(feed.items)}")
 ## 🙏 謝辞
 
 - [Streamlit](https://streamlit.io/) - 素晴らしいWebアプリフレームワーク
-- [feedparser](https://github.com/kurtmckee/feedparser) - 高機能RSSパーサー
+- [feedparser](https://github.com/kurtmckee/feedparser) - 高機能RSS/RDFパーサー
 - [APScheduler](https://github.com/agronholm/apscheduler) - 柔軟なスケジューラー
 
 ## 📞 サポート
@@ -353,4 +361,4 @@ print(f"記事数: {len(feed.items)}")
 
 ---
 
-**RSS Monitor** - シンプルで強力なRSS監視ツール 🚀
+**RSS/RDF Monitor** - シンプルで強力なフィード監視ツール 🚀
