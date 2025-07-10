@@ -64,10 +64,10 @@ def render_sidebar(config_service: ConfigService, client_id: str) -> None:
         st.sidebar.success("更新頻度を変更しました")
         st.rerun()
     
-    # RSS追加フォーム
-    st.sidebar.subheader("RSS追加")
+    # RSS/RDF追加フォーム
+    st.sidebar.subheader("RSS/RDF追加")
     with st.sidebar.form("add_rss_form"):
-        new_url = st.text_input("RSS URL", placeholder="https://example.com/rss")
+        new_url = st.text_input("RSS/RDF URL", placeholder="https://example.com/rss または .rdf")
         new_alias = st.text_input("表示名（任意）", placeholder="例: ニュースサイト")
         
         if st.form_submit_button("追加"):
@@ -80,16 +80,16 @@ def render_sidebar(config_service: ConfigService, client_id: str) -> None:
                 else:
                     success = config_service.add_rss_to_config(client_id, new_url, new_alias)
                     if success:
-                        display_success("RSSを追加しました")
+                        display_success("RSS/RDFフィードを追加しました")
                         st.rerun()
                     else:
-                        display_error("RSS追加に失敗しました")
+                        display_error("RSS/RDF追加に失敗しました")
             else:
                 display_warning("URLを入力してください")
 
 
 def render_rss_feed_card(feed: RSSFeed, rss_config, config_service: ConfigService, client_id: str) -> None:
-    """RSSフィードカードを描画"""
+    """RSS/RDFフィードカードを描画"""
     with st.container():
         # ヘッダー
         col1, col2, col3 = st.columns([3, 1, 1])
@@ -108,7 +108,7 @@ def render_rss_feed_card(feed: RSSFeed, rss_config, config_service: ConfigServic
             # 削除ボタン
             if st.button("🗑️ 削除", key=f"delete_{feed.url}"):
                 if config_service.remove_rss_from_config(client_id, feed.url):
-                    display_success("RSSを削除しました")
+                    display_success("フィードを削除しました")
                     st.rerun()
                 else:
                     display_error("削除に失敗しました")
@@ -146,22 +146,22 @@ def render_main_content(rss_service: RSSService, config_service: ConfigService, 
     config = config_service.get_client_config(client_id)
     
     # ヘッダー
-    st.title("📡 RSS Monitor")
-    st.markdown("**シンプルで洗練されたRSS更新監視ツール**")
+    st.title("📡 RSS/RDF Monitor")
+    st.markdown("**シンプルで洗練されたRSS/RDF更新監視ツール**")
     
     if not config.rss_configs:
         # RSS未設定時の案内
-        st.info("👈 サイドバーからRSSを追加して開始しましょう")
+        st.info("👈 サイドバーからRSS/RDFフィードを追加して開始しましょう")
         
         # サンプルRSS提案
-        st.subheader("🔥 人気RSS例")
-        sample_rss = [
-            ("NHKニュース", "https://www.nhk.or.jp/rss/news/cat0.xml"),
-            ("Yahoo!ニュース", "https://news.yahoo.co.jp/rss/topics/top-picks.xml"),
-            ("ITmedia", "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml")
+        st.subheader("🔥 人気フィード例")
+        sample_feeds = [
+            ("NHKニュース (RSS)", "https://www.nhk.or.jp/rss/news/cat0.xml"),
+            ("Yahoo!ニュース (RSS)", "https://news.yahoo.co.jp/rss/topics/top-picks.xml"),
+            ("ITmedia (RSS)", "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml")
         ]
         
-        for name, url in sample_rss:
+        for name, url in sample_feeds:
             col1, col2 = st.columns([3, 1])
             with col1:
                 st.write(f"**{name}**")
@@ -182,14 +182,14 @@ def render_main_content(rss_service: RSSService, config_service: ConfigService, 
             update_all_feeds(rss_service, config_service, client_id)
     
     with col2:
-        st.metric("登録RSS数", len(config.rss_configs))
+        st.metric("登録フィード数", len(config.rss_configs))
     
     with col3:
         st.metric("更新頻度", config.update_frequency.display_name)
     
     st.divider()
     
-    # RSSフィード一覧
+    # RSS/RDFフィード一覧
     feeds_loaded = 0
     
     for rss_config in config.rss_configs:
@@ -212,15 +212,15 @@ def render_main_content(rss_service: RSSService, config_service: ConfigService, 
             st.error(f"❌ **{rss_config.display_name}**: {str(e)}")
     
     if feeds_loaded == 0:
-        st.warning("有効なRSSフィードがありません")
+        st.warning("有効なフィードがありません")
 
 
 def update_all_feeds(rss_service: RSSService, config_service: ConfigService, client_id: str) -> None:
-    """すべてのRSSフィードを更新"""
+    """すべてのRSS/RDFフィードを更新"""
     config = config_service.get_client_config(client_id)
     
     if not config.rss_configs:
-        display_warning("更新するRSSがありません")
+        display_warning("更新するフィードがありません")
         return
     
     progress_bar = st.progress(0)
@@ -229,7 +229,7 @@ def update_all_feeds(rss_service: RSSService, config_service: ConfigService, cli
     total_feeds = len([cfg for cfg in config.rss_configs if cfg.enabled])
     
     if total_feeds == 0:
-        display_warning("有効なRSSがありません")
+        display_warning("有効なフィードがありません")
         return
     
     success_count = 0
@@ -251,7 +251,7 @@ def update_all_feeds(rss_service: RSSService, config_service: ConfigService, cli
     progress_bar.empty()
     status_text.empty()
     
-    display_success(f"{success_count}/{total_feeds} 件のRSSを更新しました")
+    display_success(f"{success_count}/{total_feeds} 件のフィードを更新しました")
     st.rerun()
 
 
@@ -259,7 +259,7 @@ def main():
     """メイン関数"""
     # ページ設定
     st.set_page_config(
-        page_title="RSS Monitor",
+        page_title="RSS/RDF Monitor",
         page_icon="📡",
         layout="wide",
         initial_sidebar_state="expanded"
@@ -306,7 +306,7 @@ def main():
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #666;'>"
-        "RSS Monitor v1.0 | Built with Streamlit"
+        "RSS/RDF Monitor v1.0 | Built with Streamlit"
         "</div>",
         unsafe_allow_html=True
     )
