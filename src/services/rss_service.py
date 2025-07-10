@@ -11,7 +11,7 @@ from src.models.client_config import ClientConfig, UpdateFrequency
 
 
 class RSSService(IRSSFetcher):
-    """RSSフィードの取得と管理を行うサービス"""
+    """RSS/RDFフィードの取得と管理を行うサービス"""
     
     def __init__(self, repository: IDataRepository):
         """初期化
@@ -23,10 +23,10 @@ class RSSService(IRSSFetcher):
         self._timeout = 10  # タイムアウト秒数
     
     def fetch_feed(self, url: str) -> RSSFeed:
-        """指定URLからRSSフィードを取得
+        """指定URLからRSS/RDFフィードを取得
         
         Args:
-            url: RSS URL
+            url: RSS/RDF URL
             
         Returns:
             RSSFeed: 取得したフィード情報
@@ -35,11 +35,11 @@ class RSSService(IRSSFetcher):
             Exception: 取得失敗時
         """
         try:
-            # feedparserでRSSを取得
+            # feedparserでRSS/RDFを取得（RSS 1.0/2.0, Atom, RDF全対応）
             parsed = feedparser.parse(url)
             
             if parsed.bozo and not parsed.entries:
-                raise Exception(f"RSSの取得に失敗しました: {url}")
+                raise Exception(f"RSS/RDFフィードの取得に失敗しました: {url}")
             
             # フィード情報を抽出
             feed_info = parsed.feed
@@ -57,17 +57,17 @@ class RSSService(IRSSFetcher):
                 item = RSSItem(
                     title=entry.get('title', ''),
                     link=entry.get('link', ''),
-                    description=entry.get('summary', ''),
+                    description=entry.get('summary', entry.get('description', '')),
                     published=published,
-                    author=entry.get('author', '')
+                    author=entry.get('author', entry.get('dc_creator', ''))
                 )
                 items.append(item)
             
-            # RSSフィードオブジェクトを作成
+            # RSS/RDFフィードオブジェクトを作成
             feed = RSSFeed(
                 title=feed_info.get('title', ''),
                 link=feed_info.get('link', ''),
-                description=feed_info.get('description', ''),
+                description=feed_info.get('description', feed_info.get('subtitle', '')),
                 url=url,
                 items=items,
                 last_updated=datetime.now(),
@@ -84,10 +84,10 @@ class RSSService(IRSSFetcher):
             cached_feed = self._repository.load_feed_cache(url)
             if cached_feed:
                 return cached_feed
-            raise Exception(f"RSS取得エラー: {str(e)}")
+            raise Exception(f"RSS/RDF取得エラー: {str(e)}")
     
     def validate_url(self, url: str) -> bool:
-        """RSS URLの有効性を検証
+        """RSS/RDF URLの有効性を検証
         
         Args:
             url: 検証するURL
@@ -112,7 +112,7 @@ class RSSService(IRSSFetcher):
         """キャッシュを考慮したフィード取得
         
         Args:
-            url: RSS URL
+            url: RSS/RDF URL
             force_refresh: 強制更新フラグ
             
         Returns:
