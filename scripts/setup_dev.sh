@@ -40,7 +40,7 @@ fi
 
 # Pre-commitフックのインストール
 if command -v pre-commit &> /dev/null; then
-    echo "🪝 Pre-commitフックをインストール中..."
+    echo "🦝 Pre-commitフックをインストール中..."
     pre-commit install
 fi
 
